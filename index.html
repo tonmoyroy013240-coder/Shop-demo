@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Shop Manager — Retail POS, FIFO Inventory &amp; Due Ledger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js" integrity="sha384-Emf5ZVIUiarAdhkgtqK+5/Z5qIvM6QoVrS+qAVtfyZVuD5lIHrac0me485+Antp0" crossorigin="anonymous"></script>
+  <style>*,::before,::after{box-sizing:border-box;border:0 solid #e2e8f0}
+body{margin:0;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:#f8fafc;color:#0f172a;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{background:none;cursor:pointer}
+.hidden{display:none!important}
+.flex{display:flex}.gap-1{gap:6px}.gap-2{gap:8px}
+.land-wrap{min-height:100vh;background:#ffffff;color:#0f172a}
+.land-nav{position:sticky;top:0;z-index:40;background:rgba(9,13,22,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);color:#fff}
+.land-nav-in{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.land-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;color:#fff;text-decoration:none}
+.land-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#022c22;font-size:16px}
+.land-links{display:none;gap:24px;font-size:14px;font-weight:600;color:#94a3b8}
+.land-links a{color:inherit;text-decoration:none}
+.land-links a:hover{color:#fff}
+@media(min-width:768px){.land-links{display:flex}}
+.btn-emerald{background:#10b981;color:#022c22;font-weight:700;padding:10px 18px;border-radius:10px;font-size:14px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(16,185,129,.25);transition:background .15s}
+.btn-emerald:hover{background:#34d399}
+.btn-ghost-dark{background:rgba(255,255,255,.08);color:#f1f5f9;border:1px solid rgba(255,255,255,.15);font-weight:600;padding:12px 22px;border-radius:12px;font-size:15px;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.land-hero{background:radial-gradient(circle at 80% 15%,rgba(16,185,129,.22),transparent 45%),linear-gradient(160deg,#070b14 0%,#0f172a 65%,#064e3b 100%);color:#fff;padding:64px 20px 80px}
+.land-hero-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;align-items:center}
+@media(min-width:1024px){.land-hero-grid{grid-template-columns:1.05fr .95fr}}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,.14);border:1px solid rgba(52,211,153,.35);color:#6ee7b7;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:18px}
+.hero-h1{font-size:clamp(32px,4.5vw,52px);font-weight:800;line-height:1.12;margin:0 0 18px;letter-spacing:-.02em}
+.hero-h1 span{color:#34d399}
+.hero-p{font-size:16px;line-height:1.65;color:#cbd5e1;margin:0 0 28px;max-width:540px}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+.hero-trust{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:#94a3b8;font-weight:600}
+.hero-trust i{color:#10b981;margin-right:6px}
+.hero-preview{background:#f8fafc;border-radius:20px;padding:18px;color:#0f172a;box-shadow:0 30px 70px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18)}
+.pv-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #e2e8f0}
+.pv-dots{display:flex;gap:6px}.pv-dots span{width:10px;height:10px;border-radius:999px;background:#cbd5e1}
+.pv-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.pv-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px}
+.pv-kpi.accent{background:linear-gradient(135deg,#059669,#0f766e);color:#fff;border:none}
+.pv-kpi small{display:block;font-size:11px;opacity:.75;font-weight:600}
+.pv-kpi strong{font-size:20px;font-weight:800}
+.pv-rows{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;font-size:12px}
+.pv-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9}
+.pv-row:last-child{border:none}
+.land-sec{max-width:1200px;margin:0 auto;padding:64px 20px}
+.sec-head{text-align:center;max-width:640px;margin:0 auto 40px}
+.sec-head h2{font-size:30px;font-weight:800;margin:0 0 10px}
+.sec-head p{color:#64748b;margin:0;font-size:15px}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.feat-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(15,23,42,.03)}
+.feat-ico{width:44px;height:44px;border-radius:12px;background:#ecfdf5;color:#059669;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.feat-card h3{margin:0 0 8px;font-size:17px;font-weight:700}
+.feat-card p{margin:0;font-size:14px;color:#64748b;line-height:1.55}
+.land-cta{background:#0f172a;color:#fff;border-radius:22px;padding:42px 24px;text-align:center;max-width:1160px;margin:0 auto 60px}
+.land-foot{border-top:1px solid #e2e8f0;padding:24px 20px;text-align:center;font-size:13px;color:#64748b}
+.app-shell{display:flex;flex-direction:column;min-height:100vh;background:#f8fafc}
+.app-sidebar{background:#0f172a;color:#cbd5e1;padding:12px 16px;display:flex;flex-direction:column;gap:12px}
+.sb-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sb-brand{display:flex;align-items:center;gap:10px;color:#fff}
+.sb-logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:#022c22;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex-shrink:0}
+.sb-title{font-size:15px;font-weight:800;line-height:1.2}
+.sb-sub{font-size:11px;color:#94a3b8}
+.app-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.nav-item{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 10px;border-radius:10px;font-size:12px;font-weight:600;color:#94a3b8;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.active{background:#10b981;color:#022c22;font-weight:700;box-shadow:0 4px 12px rgba(16,185,129,.25)}
+.sb-footer{display:none}
+@media(min-width:1024px){
+  .app-shell{flex-direction:row}
+  .app-sidebar{width:256px;flex-shrink:0;position:sticky;top:0;height:100vh;padding:22px 16px;justify-content:space-between;border-right:1px solid #1e293b}
+  .app-nav{display:flex;flex-direction:column;gap:6px;margin-top:24px}
+  .nav-item{justify-content:flex-start;padding:11px 14px;font-size:14px}
+  .sb-footer{display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid #1e293b}
+}
+.app-main-wrap{flex:1;min-width:0;display:flex;flex-direction:column}
+.app-topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.tb-left h2{margin:0;font-size:19px;font-weight:800;color:#0f172a}
+.tb-left p{margin:2px 0 0;font-size:12px;color:#64748b}
+.tb-right{display:flex;align-items:center;gap:10px}
+.curr-pill{font-size:12px;font-weight:700;background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;padding:5px 11px;border-radius:999px}
+.acct-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2e8f0;padding:6px 12px;border-radius:10px;font-size:12px;font-weight:700;color:#334155}
+.app-content{padding:24px;max-width:1280px;width:100%;margin:0 auto}
+.demo-strip{background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;font-size:12px;font-weight:700;padding:8px 16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
+.demo-strip button{text-decoration:underline;font-weight:800}
+.toolbar-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;box-shadow:0 1px 3px rgba(15,23,42,.03)}
+.sel-input,.search-input{background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;outline:none}
+.search-input:focus,.sel-input:focus{border-color:#10b981;background:#fff}
+.alert-warn{background:#fffbeb;border:1px solid #fcd34d;border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.btn-amber{background:#d97706;color:#fff;font-size:12px;font-weight:700;padding:8px 14px;border-radius:9px}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+@media(min-width:1024px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+.kpi-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(15,23,42,.03);display:flex;flex-direction:column;gap:8px}
+.kpi-card.kpi-profit{background:linear-gradient(135deg,#059669,#0f766e);color:#fff;border:none;box-shadow:0 10px 25px rgba(5,150,105,.22)}
+.kpi-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:#64748b}
+.kpi-profit .kpi-top{color:#d1fae5}
+.kpi-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.kpi-val{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;color:#0f172a}
+.kpi-profit .kpi-val{color:#fff}
+.kpi-sub{font-size:11px;color:#94a3b8}
+.kpi-profit .kpi-sub{color:#a7f3d0}
+.charts-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1024px){.charts-grid{grid-template-columns:1.8fr 1fr}}
+.chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(15,23,42,.03)}
+.chart-title{font-size:14px;font-weight:800;margin:0 0 12px;color:#0f172a}
+.chart-box{position:relative;height:260px;width:100%}
+.panel-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.03)}
+.panel-head{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.panel-head h3{margin:0;font-size:15px;font-weight:800}
+.table-wrap{overflow-x:auto}
+.modern-table{width:100%;border-collapse:collapse;font-size:13px}
+.modern-table th{background:#f8fafc;color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:12px 16px;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+.modern-table td{padding:13px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.modern-table th.num,.modern-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.row-hover{cursor:pointer;transition:background .1s}
+.row-hover:hover{background:#f8fafc}
+.row-settled{background:#f0fdf4}
+.editing-row{background:#ecfdf5!important}
+.fw-bold{font-weight:700}.text-muted{color:#64748b}.mono{font-family:ui-monospace,monospace;font-size:12px}
+.sub-txt{font-size:11px;color:#64748b;margin-top:2px}
+.txt-ok{color:#059669}.txt-due{color:#e11d48}
+.unit-chip{background:#f1f5f9;color:#334155;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.pill-ok{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+.pill-warn{background:#fffbeb;color:#b45309;border:1px solid #fde68a}
+.pill-due{background:#fff1f2;color:#be123c;border:1px solid #fecdd3}
+.status-chk{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.mini-pay{background:#059669;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;margin-left:4px}
+.act{white-space:nowrap;display:flex;gap:6px;align-items:center}
+.icon-btn{width:28px;height:28px;border-radius:8px;background:#f1f5f9;color:#475569;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.icon-btn:hover{background:#e2e8f0;color:#0f172a}
+.icon-btn-del:hover{background:#ffe4e6;color:#e11d48}
+.empty-cell{text-align:center;padding:38px 16px!important;color:#94a3b8;font-size:13px}
+.cell-input{width:100%;min-width:78px;background:#fff;border:1.5px solid #10b981;border-radius:8px;padding:7px 10px;font-size:13px;outline:none}
+.sub-inputs{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.save-bar{padding:12px 20px;background:#ecfdf5;border-top:1px solid #a7f3d0;display:flex;justify-content:flex-end;gap:10px}
+.btn-primary{background:#059669;color:#fff;font-size:12px;font-weight:700;padding:9px 16px;border-radius:10px;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{background:#047857}
+.btn-sec{background:#fff;border:1px solid #cbd5e1;color:#334155;font-size:12px;font-weight:700;padding:8px 14px;border-radius:10px}
+.btn-danger{background:#e11d48;color:#fff;font-size:12px;font-weight:700;padding:9px 16px;border-radius:10px}
+.panel-foot{background:#0f172a;color:#e2e8f0;padding:13px 20px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
+.date-ctrl{display:flex;align-items:center;gap:8px}
+.date-btn{width:34px;height:34px;border-radius:10px;background:#0f172a;color:#fff;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.date-btn-ghost{background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:6px 12px;border-radius:9px;font-size:12px;font-weight:700}
+.modal-backdrop{position:fixed;inset:0;z-index:60;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-card{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:22px;box-shadow:0 25px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:14px}
+.modal-card h3{margin:0;font-size:17px;font-weight:800}
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;text-align:center;font-size:12px}
+.hist-box{max-height:135px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:12px;font-size:12px}
+.hist-row{display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f1f5f9}
+.hist-empty{padding:16px;text-align:center;color:#94a3b8}
+.toast-wrap{position:fixed;top:20px;right:20px;z-index:80;display:flex;flex-direction:column;gap:8px;max-width:340px;pointer-events:none}
+.toast{color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
+.toast-ok{background:#059669}.toast-warn{background:#d97706}.toast-err{background:#e11d48}</style>
+</head>
+<body>
+<div id="landingView" class="land-wrap">
+  <nav class="land-nav"><div class="land-nav-in">
+    <a href="#" class="land-brand"><span class="land-logo"><i class="fa-solid fa-store"></i></span><span>Smart Shop Manager</span></a>
+    <div class="land-links"><a href="#features">Features</a><a href="#workflow">How It Works</a><a href="#stack">Architecture</a></div>
+    <button type="button" onclick="enterDemoApp()" class="btn-emerald">Launch Live Demo <i class="fa-solid fa-arrow-right"></i></button>
+  </div></nav>
+  <section class="land-hero"><div class="land-hero-grid">
+    <div>
+      <div class="hero-badge"><i class="fa-solid fa-sparkles"></i> Retail POS • FIFO Inventory • Due Ledger</div>
+      <h1 class="hero-h1">Run Your Shop Accounting on <span>Autopilot.</span></h1>
+      <p class="hero-p">Track daily cash &amp; credit sales, automatically compute true FIFO cost of goods sold, manage customer partial payments, and watch live profit analytics in one clean dashboard.</p>
+      <div class="hero-ctas">
+        <button type="button" onclick="enterDemoApp()" class="btn-emerald" style="padding:14px 24px;font-size:15px">Try Interactive Demo (No Login) <i class="fa-solid fa-arrow-right"></i></button>
+        <a href="#features" class="btn-ghost-dark">Explore Features</a>
+      </div>
+      <div class="hero-trust"><span><i class="fa-solid fa-check-circle"></i>Instant localStorage Demo</span><span><i class="fa-solid fa-shield-halved"></i>Firestore Owner Isolation</span><span><i class="fa-brands fa-docker"></i>Docker Ready</span></div>
+    </div>
+    <div class="hero-preview">
+      <div class="pv-bar"><div class="pv-dots"><span></span><span></span><span></span></div><span style="font-size:12px;font-weight:700;color:#059669">Live Financial Snapshot</span></div>
+      <div class="pv-kpis">
+        <div class="pv-kpi"><small>Total Sales</small><strong>$1,480.50</strong></div>
+        <div class="pv-kpi accent"><small>Net FIFO Profit</small><strong>$412.20</strong></div>
+        <div class="pv-kpi"><small>Unsold Stock Value</small><strong style="color:#0284c7">$2,190.00</strong></div>
+        <div class="pv-kpi"><small>Outstanding Dues</small><strong style="color:#e11d48">$185.00</strong></div>
+      </div>
+      <div class="pv-rows">
+        <div class="pv-row"><span><strong>Basmati Rice</strong> · 10 KG</span><span class="pill pill-ok">Cash · $25.00</span></div>
+        <div class="pv-row"><span><strong>Rahim Traders</strong> · Partial Pay</span><span class="pill pill-due">Due · $22.50</span></div>
+        <div class="pv-row"><span><strong>Sunflower Oil 1L</strong> · 6 PC</span><span class="pill pill-ok">Paid · $20.40</span></div>
+      </div>
+    </div>
+  </div></section>
+  <section id="features" class="land-sec">
+    <div class="sec-head"><h2>Everything Small &amp; Medium Shops Need</h2><p>Built with pure FIFO accounting logic separated cleanly from views and storage.</p></div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-ico"><i class="fa-solid fa-layer-group"></i></div><h3>True FIFO Inventory</h3><p>Oldest purchase batches deplete first with exact COGS calculation and safe restoration on edit or delete.</p></div>
+      <div class="feat-card"><div class="feat-ico"><i class="fa-solid fa-cash-register"></i></div><h3>Daily Sales Ledger</h3><p>Record Cash or Credit sales in KG, GM, or PC with automatic unit conversion and live day totals.</p></div>
+      <div class="feat-card"><div class="feat-ico"><i class="fa-solid fa-file-invoice-dollar"></i></div><h3>Customer Due Tracker</h3><p>Track credit balances, record partial installment payments with dated notes, and mark settled bills Paid.</p></div>
+      <div class="feat-card"><div class="feat-ico"><i class="fa-solid fa-chart-line"></i></div><h3>Profit &amp; Cashflow KPIs</h3><p>Monitor Investment, Cash in Hand, Stock Value, Revenue Trends, and automatic Low Stock alerts.</p></div>
+    </div>
+  </section>
+  <section id="workflow" class="land-sec" style="padding-top:10px">
+    <div class="sec-head"><h2>3-Step Automated Workflow</h2><p>Zero manual spreadsheet formulas required.</p></div>
+    <div class="feat-grid">
+      <div class="feat-card"><span class="pill pill-ok" style="margin-bottom:10px">Step 1</span><h3>Add Purchase Batches</h3><p>Enter product quantity, total cost, and selling rate. Unit cost and profit margin calculate automatically.</p></div>
+      <div class="feat-card"><span class="pill pill-ok" style="margin-bottom:10px">Step 2</span><h3>Sell Cash or Credit</h3><p>Pick a date and product. FIFO batches deduct automatically and credit sales sync straight to Due List.</p></div>
+      <div class="feat-card"><span class="pill pill-ok" style="margin-bottom:10px">Step 3</span><h3>Collect Dues &amp; Review</h3><p>Record partial payments anytime and track net profit and cash-in-hand on the real-time dashboard.</p></div>
+    </div>
+  </section>
+  <section id="stack" class="land-cta">
+    <h2 style="margin:0 0 10px;font-size:28px;font-weight:800">Try Smart Shop Manager Right Now</h2>
+    <p style="margin:0 auto 22px;max-width:560px;color:#cbd5e1;font-size:15px">Pre-seeded sample store data runs safely inside your browser with no account required.</p>
+    <button type="button" onclick="enterDemoApp()" class="btn-emerald" style="padding:14px 28px;font-size:15px">Launch Interactive Demo <i class="fa-solid fa-arrow-right"></i></button>
+  </section>
+  <footer class="land-foot">Smart Shop Manager v2.0.0 • Node.js 22 + Express 5 + Firebase Firestore + Docker</footer>
+</div>
+<div id="appShell" class="app-shell hidden">
+  <aside class="app-sidebar">
+    <div>
+      <div class="sb-top">
+        <div class="sb-brand"><div class="sb-logo"><i class="fa-solid fa-store"></i></div><div><div class="sb-title" id="brandAppName">Smart Shop Manager</div><div class="sb-sub" id="authStatusSubtitle">Interactive Demo</div></div></div>
+      </div>
+      <nav class="app-nav">
+        <button type="button" onclick="switchPlan('home')" id="nav-home" class="nav-item active"><i class="fa-solid fa-chart-pie"></i><span>Overview</span></button>
+        <button type="button" onclick="switchPlan('sell')" id="nav-sell" class="nav-item"><i class="fa-solid fa-cart-shopping"></i><span>Sales Ledger</span></button>
+        <button type="button" onclick="switchPlan('due')" id="nav-due" class="nav-item"><i class="fa-solid fa-book-open"></i><span>Due Tracker</span></button>
+        <button type="button" onclick="switchPlan('stock')" id="nav-stock" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i><span>Inventory</span></button>
+      </nav>
+    </div>
+    <div class="sb-footer"><button type="button" onclick="exitDemoApp()" class="nav-item" style="justify-content:flex-start"><i class="fa-solid fa-arrow-left"></i><span>Landing Page</span></button><div style="font-size:11px;color:#64748b;padding:4px 8px">FIFO Accounting Engine v2.0</div></div>
+  </aside>
+  <div class="app-main-wrap">
+    <div class="demo-strip"><span><i class="fa-solid fa-flask"></i> Interactive Demo Mode (localStorage)</span><button type="button" onclick="resetDemoData()">Reset Sample Data</button><button type="button" onclick="exitDemoApp()">← Back to Landing Page</button></div>
+<header class="app-topbar">
+      <div class="tb-left"><h2 id="pageTitle">Financial Overview</h2><p id="pageSubtitle">Real-time FIFO profit, sales &amp; stock analytics</p></div>
+      <div class="tb-right"><span class="curr-pill" id="currencyBadge">USD $</span><button type="button" onclick="openAuthModal()" class="acct-btn"><i class="fa-solid fa-user-circle" style="color:#059669"></i><span id="accountBtnText">Demo Owner</span></button></div>
+    </header>
+    <div id="toastContainer" class="toast-wrap"></div>
+    <main class="app-content">
+      <section id="plan-home">
+        <div class="toolbar-card"><div class="fw-bold" style="font-size:14px"><i class="fa-regular fa-calendar" style="color:#059669;margin-right:8px"></i>Reporting Period</div><div class="flex gap-2"><select id="dashMonthSelect" onchange="renderDashboard()" class="sel-input"><option value="ALL">All Time</option><option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select><select id="dashYearSelect" onchange="renderDashboard()" class="sel-input"></select></div></div>
+        <div id="lowStockBanner" class="alert-warn hidden"><div><div class="fw-bold" style="color:#92400e;font-size:13px"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>Low Stock Alert</div><div id="lowStockText" style="font-size:12px;color:#b45309;margin-top:2px"></div></div><button type="button" onclick="switchPlan('stock')" class="btn-amber">Restock</button></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-top"><span>Total Investment</span><span class="kpi-ico" style="background:#eef2ff;color:#4f46e5"><i class="fa-solid fa-wallet"></i></span></div><div id="kpi-investment" class="kpi-val">$0</div><div class="kpi-sub">Stock purchase capital</div></div>
+          <div class="kpi-card"><div class="kpi-top"><span>Total Sales</span><span class="kpi-ico" style="background:#ecfdf5;color:#059669"><i class="fa-solid fa-chart-line"></i></span></div><div id="kpi-total-sales" class="kpi-val" style="color:#047857">$0</div><div class="kpi-sub">Cash + Credit revenue</div></div>
+          <div class="kpi-card kpi-profit"><div class="kpi-top"><span>Net FIFO Profit</span><span class="kpi-ico" style="background:rgba(255,255,255,.18);color:#fff"><i class="fa-solid fa-coins"></i></span></div><div id="kpi-profit" class="kpi-val">$0</div><div class="kpi-sub">Revenue minus FIFO COGS</div></div>
+          <div class="kpi-card"><div class="kpi-top"><span>Stock Value</span><span class="kpi-ico" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-warehouse"></i></span></div><div id="kpi-stock-value" class="kpi-val" style="color:#0369a1">$0</div><div class="kpi-sub">Unsold inventory cost</div></div>
+          <div class="kpi-card"><div class="kpi-top"><span>Cash Sales</span><span class="kpi-ico" style="background:#ecfdf5;color:#059669"><i class="fa-solid fa-money-bill-wave"></i></span></div><div id="kpi-cash-sales" class="kpi-val">$0</div><div class="kpi-sub">Direct cash bills</div></div>
+          <div class="kpi-card"><div class="kpi-top"><span>Credit Sales</span><span class="kpi-ico" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-receipt"></i></span></div><div id="kpi-credit-sales" class="kpi-val" style="color:#b45309">$0</div><div class="kpi-sub">Sold on customer credit</div></div>
+          <div class="kpi-card" style="border-color:#fecdd3"><div class="kpi-top"><span style="color:#be123c">Outstanding Due</span><span class="kpi-ico" style="background:#ffe4e6;color:#e11d48"><i class="fa-solid fa-hand-holding-dollar"></i></span></div><div id="kpi-outstanding-due" class="kpi-val" style="color:#e11d48">$0</div><div class="kpi-sub">Unpaid customer balance</div></div>
+          <div class="kpi-card"><div class="kpi-top"><span>Due Collected</span><span class="kpi-ico" style="background:#f3e8ff;color:#7e22ce"><i class="fa-solid fa-circle-check"></i></span></div><div id="kpi-due-collected" class="kpi-val" style="color:#7e22ce">$0</div><div class="kpi-sub" id="kpi-cash-in-hand">Cash in Hand: $0</div></div>
+        </div>
+        <div class="charts-grid"><div class="chart-card"><h4 class="chart-title">Sales &amp; Profit Trend</h4><div class="chart-box"><canvas id="salesProfitChart"></canvas></div></div><div class="chart-card"><h4 class="chart-title">Cashflow Breakdown</h4><div class="chart-box"><canvas id="breakdownChart"></canvas></div></div></div>
+      </section>
+      <section id="plan-sell" class="hidden">
+        <div class="toolbar-card"><div class="date-ctrl"><button type="button" onclick="shiftSellMonth(-1)" class="date-btn-ghost">&laquo;</button><span id="sellMonthLabel" class="fw-bold" style="font-size:13px"></span><button type="button" onclick="shiftSellMonth(1)" class="date-btn-ghost">&raquo;</button></div><div class="date-ctrl"><button type="button" onclick="shiftSellDate(-1)" class="date-btn">&lsaquo;</button><div style="text-align:center"><div id="sellDateHuman" class="fw-bold" style="font-size:13px"></div><input type="date" id="sellDatePicker" onchange="onSellDatePicked(this.value)" class="sub-txt" style="border:none;background:transparent"/></div><button type="button" onclick="shiftSellDate(1)" class="date-btn">&rsaquo;</button></div><button type="button" onclick="jumpSellToToday()" class="date-btn-ghost">Today</button></div>
+        <div class="panel-card"><div class="panel-head"><h3>Daily Sales Ledger</h3><button type="button" onclick="startAddSellRow()" class="btn-primary"><i class="fa-solid fa-plus"></i> New Sale</button></div><div class="table-wrap"><table class="modern-table"><thead><tr><th>#</th><th>Product</th><th class="num">Quantity</th><th>Unit</th><th class="num">Total Price</th><th>Payment Type</th><th>Actions</th></tr></thead><tbody id="sellTableBody"></tbody></table></div><div id="sellSaveBar" class="save-bar hidden"><button type="button" onclick="cancelSellEdit()" class="btn-sec">Cancel</button><button type="button" onclick="saveSellRow()" class="btn-primary">Save Sale</button></div><div class="panel-foot"><span>Cash: <strong id="sellDayCashTotal">$0</strong> &nbsp;|&nbsp; Credit: <strong id="sellDayCreditTotal">$0</strong></span><strong>Day Total: <span id="sellDayGrandTotal" style="color:#34d399">$0</span></strong></div></div>
+      </section>
+      <section id="plan-due" class="hidden">
+        <div class="panel-card"><div class="panel-head"><h3>Customer Due List</h3><div class="flex gap-2"><input type="text" id="dueSearchInput" oninput="renderDueTable()" placeholder="Search customer or mobile..." class="search-input"/><button type="button" onclick="startAddDueRow()" class="btn-primary"><i class="fa-solid fa-plus"></i> New Credit</button></div></div><div class="table-wrap"><table class="modern-table"><thead><tr><th>Customer</th><th>Mobile</th><th>Product</th><th class="num">Qty</th><th class="num">Total</th><th class="num">Paid</th><th class="num">Remaining</th><th>Status</th><th>Actions</th></tr></thead><tbody id="dueTableBody"></tbody></table></div><div id="dueSaveBar" class="save-bar hidden"><button type="button" onclick="cancelDueEdit()" class="btn-sec">Cancel</button><button type="button" onclick="saveDueRow()" class="btn-primary">Save Credit</button></div><div class="panel-foot"><span>Total Credit: <strong id="dueFooterCreditTotal">$0</strong></span><span>Collected: <strong id="dueFooterPaidTotal" style="color:#34d399">$0</strong></span><strong>Remaining: <span id="dueFooterRemainingTotal" style="color:#fb7185">$0</span></strong></div></div>
+      </section>
+      <section id="plan-stock" class="hidden">
+        <div class="panel-card"><div class="panel-head"><h3>Investment &amp; FIFO Batches</h3><div class="flex gap-2"><input type="text" id="stockSearchInput" oninput="renderStockTable()" placeholder="Filter product..." class="search-input"/><button type="button" onclick="startAddStockRow()" class="btn-primary"><i class="fa-solid fa-plus"></i> Add Batch</button></div></div><div class="table-wrap"><table class="modern-table"><thead><tr><th>Product</th><th class="num">Purchased</th><th class="num">Total Cost</th><th class="num">Buy / Unit</th><th class="num">Sell / Unit</th><th class="num">Available</th><th class="num">Sold</th><th>Date</th><th>Actions</th></tr></thead><tbody id="stockTableBody"></tbody></table></div><div id="stockSaveBar" class="save-bar hidden"><button type="button" onclick="cancelStockEdit()" class="btn-sec">Cancel</button><button type="button" onclick="saveStockRow()" class="btn-primary">Save Batch</button></div><div class="panel-foot"><span>Capital Invested: <strong id="stockFooterInvestment">$0</strong></span><strong>Unsold Stock Value: <span id="stockFooterLiveValue" style="color:#38bdf8">$0</span></strong></div></div>
+      </section>
+    </main>
+  </div>
+</div>
+<div id="paymentModal" class="modal-backdrop hidden"><div class="modal-card"><h3>Record Customer Payment</h3><p id="payModalCustomerSub" class="sub-txt" style="margin:0"></p><div class="stat-strip"><div>Total<br/><strong id="payModalTotal">$0</strong></div><div>Paid<br/><strong id="payModalPaid">$0</strong></div><div>Due<br/><strong id="payModalRemaining" style="color:#e11d48">$0</strong></div></div><input type="number" step="any" id="payModalAmountInput" class="cell-input" placeholder="Payment amount"/><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input type="date" id="payModalDateInput" class="sel-input"/><input type="text" id="payModalNoteInput" placeholder="Note (optional)" class="search-input"/></div><div id="payModalHistoryList" class="hist-box"></div><div class="flex gap-2" style="justify-content:flex-end"><button type="button" onclick="closeModal('paymentModal')" class="btn-sec">Close</button><button type="button" onclick="submitDuePayment()" class="btn-primary">Save Payment</button></div></div></div>
+<div id="adjustModal" class="modal-backdrop hidden"><div class="modal-card"><h3>Adjust Batch Stock</h3><p id="adjModalProductSub" class="sub-txt" style="margin:0"></p><select id="adjTypeSelect" class="sel-input"><option value="ADD">+ Add Stock</option><option value="SUB">- Deduct Stock</option></select><div class="flex gap-2"><input type="number" step="any" id="adjQtyInput" class="cell-input" placeholder="Quantity"/><select id="adjUnitSelect" class="sel-input"></select></div><input type="text" id="adjReasonInput" placeholder="Reason (e.g. Damaged / Audit) *" class="search-input"/><div class="flex gap-2" style="justify-content:flex-end"><button type="button" onclick="closeModal('adjustModal')" class="btn-sec">Cancel</button><button type="button" onclick="submitStockAdjustment()" class="btn-amber">Apply Adjustment</button></div></div></div>
+<div id="authModal" class="modal-backdrop hidden"><div class="modal-card" style="max-width:360px"><h3>Demo Profile</h3><div style="background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e2e8f0"><div id="accountName" class="fw-bold"></div><div id="accountEmail" class="sub-txt"></div></div><button type="button" onclick="resetDemoData()" class="btn-amber" style="width:100%;padding:11px">Reset Demo Data</button><button type="button" onclick="closeModal('authModal')" class="btn-sec" style="width:100%">Close</button></div></div>
+  <script type="module">
+function getLocalDateStr(d = new Date()) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function formatCurrency(amount, symbol = '$') { const n = Number(amount) || 0; return `${symbol}${n.toLocaleString('en-US', { minimumFractionDigits: n % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 })}`; }
+function formatQty(val) { const n = Number(val) || 0; return Number.isInteger(n) ? String(n) : n.toFixed(3).replace(/\.?0+$/, ''); }
+function getUnitType(unit) { return unit === 'KG' || unit === 'GM' ? 'WEIGHT' : 'PC'; }
+function toBaseQty(qty, unit) { const q = Number(qty) || 0; return unit === 'GM' ? q / 1000 : q; }
+function fromBaseQty(baseQty, targetUnit) { const b = Number(baseQty) || 0; return targetUnit === 'GM' ? b * 1000 : b; }
+function computeDueBalances(totalPrice, amountPaid) { const t = Math.max(0, Number(totalPrice) || 0), p = Math.max(0, Number(amountPaid) || 0), r = Math.max(0, Math.round((t - p) * 100) / 100); return { totalPrice: t, amountPaid: p, remainingDue: r, isPaid: r <= 0 && t > 0 }; }
+function restoreFifoBatches(batches, qtyBaseToRestore) {
+  const c = batches.map(b => ({ ...b })); let rem = Number(qtyBaseToRestore) || 0;
+  for (let i = c.length - 1; i >= 0 && rem > 1e-9; i--) { const b = c[i], tb = Math.min(rem, Number(b.soldQtyBase) || 0); b.remainingQtyBase = Math.round(((Number(b.remainingQtyBase) || 0) + tb) * 1e5) / 1e5; b.soldQtyBase = Math.round(((Number(b.soldQtyBase) || 0) - tb) * 1e5) / 1e5; rem -= tb; }
+  return c;
+}
+function allocateFifoDeduction(batches, qtyBaseNeeded) {
+  const s = [...batches].map(b => ({ ...b })).sort((a, b) => (a.purchaseDate || '').localeCompare(b.purchaseDate || ''));
+  if (qtyBaseNeeded > s.reduce((sum, b) => sum + (Number(b.remainingQtyBase) || 0), 0) + 1e-9) throw new Error('Insufficient stock available.');
+  let td = qtyBaseNeeded, cogs = 0;
+  for (const b of s) { if (td <= 1e-9) break; const av = Number(b.remainingQtyBase) || 0; if (av <= 0) continue; const u = Math.min(av, td); b.remainingQtyBase = Math.round((av - u) * 1e5) / 1e5; b.soldQtyBase = Math.round(((Number(b.soldQtyBase) || 0) + u) * 1e5) / 1e5; cogs += u * (Number(b.purchasePricePerBaseUnit) || 0); td -= u; }
+  return { batches: s, cogs: Math.round(cogs * 100) / 100 };
+}
+function computeSaleProfit(sellingPrice, cogs) { return Math.round(((Number(sellingPrice) || 0) - (Number(cogs) || 0)) * 100) / 100; }
+function computeDashboardKpis({ inventory = [], sales = [], dues = [], selMonth = 'ALL', selYear }) {
+  const mp = (ds) => !ds ? false : (selMonth === 'ALL' ? (selYear ? ds.startsWith(selYear) : true) : ds.startsWith(`${selYear}-${selMonth}`));
+  const ps = sales.filter(s => mp(s.date)), totalInvestment = inventory.filter(b => mp(b.purchaseDate)).reduce((sum, b) => sum + (Number(b.totalPurchaseCost) || 0), 0);
+  let cashSales = 0, creditSales = 0, totalProfit = 0;
+  for (const s of ps) { const p = Number(s.sellingPrice) || 0; if (s.saleType === 'CREDIT') creditSales += p; else cashSales += p; totalProfit += Number(s.profit) || 0; }
+  let periodDueCollected = 0;
+  for (const d of dues) for (const p of (Array.isArray(d.paymentHistory) ? d.paymentHistory : [])) if (mp(p.date)) periodDueCollected += Number(p.amount) || 0;
+  const totalOutstandingDue = (selMonth === 'ALL' ? dues : dues.filter(d => mp(d.date))).reduce((sum, d) => sum + Math.max(0, Number(d.remainingDue) || 0), 0);
+  const currentStockValue = inventory.reduce((sum, b) => sum + Math.max(0, Number(b.remainingQtyBase) || 0) * (Number(b.purchasePricePerBaseUnit) || 0), 0);
+  return { totalInvestment, cashSales, creditSales, totalSales: cashSales + creditSales, totalProfit, periodDueCollected, totalOutstandingDue, currentStockValue, cashInHand: cashSales + periodDueCollected, periodSales: ps };
+}
+let activeAdapter = null;
+function setStorageAdapter(a) { activeAdapter = a; }
+function userCol(u, c) { return activeAdapter.userCol(u, c); }
+function storageUserDoc(u, c, id) { return activeAdapter.userDoc(u, c, id); }
+function setDoc(r, d) { return activeAdapter.setDoc(r, d); }
+function deleteDoc(r) { return activeAdapter.deleteDoc(r); }
+function onSnapshot(c, ok, er) { return activeAdapter.onSnapshot(c, ok, er); }
+function runTransaction(fn) { return activeAdapter.runTransaction(fn); }
+const appId = 'smart-shop-manager', DEMO_PREFIX = 'ssmDemoV2:', demoListeners = [];
+const DEMO_USER = { uid: 'demo-user', displayName: 'Demo Shop Owner', email: 'demo@smartshop.app' };
+function demoRead(c) { try { return JSON.parse(localStorage.getItem(DEMO_PREFIX + 'col:' + c) || '{}'); } catch (_) { return {}; } }
+function demoSave(c, o) { localStorage.setItem(DEMO_PREFIX + 'col:' + c, JSON.stringify(o)); }
+function demoSnap(c) { const o = demoRead(c); return { docs: Object.keys(o).map(id => ({ id, exists: () => true, data: () => JSON.parse(JSON.stringify(o[id])) })) }; }
+function demoNotify(c) { demoListeners.filter(l => l.col === c).forEach(l => l.cb(demoSnap(c))); }
+function seedDemoIfEmpty() {
+  if (localStorage.getItem(DEMO_PREFIX + 'seeded') === '1') return;
+  const today = getLocalDateStr(new Date()), d1 = getLocalDateStr(new Date(Date.now() - 864e5)), d2 = getLocalDateStr(new Date(Date.now() - 1728e5)), base = 'artifacts/smart-shop-manager/users/demo-user/';
+  demoSave(base + 'inventory_batches', {
+    'b-rice': { productName: 'Basmati Rice', unitType: 'WEIGHT', displayUnit: 'KG', purchasedQtyBase: 100, totalPurchaseCost: 180, purchasePricePerBaseUnit: 1.8, sellingPricePerBaseUnit: 2.5, remainingQtyBase: 75, soldQtyBase: 25, purchaseDate: d2, createdAt: Date.now() - 5e5 },
+    'b-oil': { productName: 'Sunflower Oil 1L', unitType: 'PC', displayUnit: 'PC', purchasedQtyBase: 60, totalPurchaseCost: 150, purchasePricePerBaseUnit: 2.5, sellingPricePerBaseUnit: 3.4, remainingQtyBase: 46, soldQtyBase: 14, purchaseDate: d2, createdAt: Date.now() - 4e5 },
+    'b-sugar': { productName: 'White Sugar', unitType: 'WEIGHT', displayUnit: 'KG', purchasedQtyBase: 50, totalPurchaseCost: 55, purchasePricePerBaseUnit: 1.1, sellingPricePerBaseUnit: 1.6, remainingQtyBase: 8, soldQtyBase: 42, purchaseDate: d1, createdAt: Date.now() - 3e5 }
+  });
+  demoSave(base + 'dues', {
+    'due-1': { saleId: 's-2', date: d1, customerName: 'Rahim Traders', mobile: '555-0102', productName: 'Basmati Rice', quantity: 15, unit: 'KG', qtyBase: 15, totalPrice: 37.5, amountPaid: 15, remainingDue: 22.5, isPaid: false, paymentHistory: [{ date: d1, amount: 15, note: 'Down payment' }], createdAt: Date.now() - 2e5 },
+    'due-2': { saleId: 's-3', date: d1, customerName: 'Sara Grocery', mobile: '555-0148', productName: 'Sunflower Oil 1L', quantity: 6, unit: 'PC', qtyBase: 6, totalPrice: 20.4, amountPaid: 20.4, remainingDue: 0, isPaid: true, paymentHistory: [{ date: today, amount: 20.4, note: 'Settled in full' }], createdAt: Date.now() - 25e4 }
+  });
+  demoSave(base + 'sales', {
+    's-1': { date: today, productName: 'Basmati Rice', quantity: 10, unit: 'KG', qtyBase: 10, sellingPrice: 25, cogs: 18, profit: 7, saleType: 'CASH', dueRecordId: null, customerName: null, createdAt: Date.now() - 1e5 },
+    's-2': { date: d1, productName: 'Basmati Rice', quantity: 15, unit: 'KG', qtyBase: 15, sellingPrice: 37.5, cogs: 27, profit: 10.5, saleType: 'CREDIT', dueRecordId: 'due-1', customerName: 'Rahim Traders', createdAt: Date.now() - 2e5 },
+    's-3': { date: d1, productName: 'Sunflower Oil 1L', quantity: 6, unit: 'PC', qtyBase: 6, sellingPrice: 20.4, cogs: 15, profit: 5.4, saleType: 'CREDIT', dueRecordId: 'due-2', customerName: 'Sara Grocery', createdAt: Date.now() - 25e4 }
+  });
+  demoSave(base + 'stock_adjustments', {});
+  localStorage.setItem(DEMO_PREFIX + 'seeded', '1');
+}
+window.resetDemoData = () => { if (confirm('Reset demo data to defaults?')) { Object.keys(localStorage).filter(k => k.startsWith(DEMO_PREFIX)).forEach(k => localStorage.removeItem(k)); location.reload(); } };
+function createLocalAdapter() {
+  return {
+    userCol: (uid, c) => ({ col: `artifacts/${appId}/users/${uid}/${c}` }),
+    userDoc: (uid, c, id) => ({ col: `artifacts/${appId}/users/${uid}/${c}`, id }),
+    setDoc: async (r, d) => { const o = demoRead(r.col); o[r.id] = JSON.parse(JSON.stringify(d)); demoSave(r.col, o); demoNotify(r.col); },
+    deleteDoc: async (r) => { const o = demoRead(r.col); delete o[r.id]; demoSave(r.col, o); demoNotify(r.col); },
+    onSnapshot: (cr, cb) => { const l = { col: cr.col, cb }; demoListeners.push(l); setTimeout(() => demoListeners.includes(l) && cb(demoSnap(cr.col)), 0); return () => { const i = demoListeners.indexOf(l); if (i >= 0) demoListeners.splice(i, 1); }; },
+    runTransaction: async (fn) => {
+      const ops = [], tx = { get: async r => { const o = demoRead(r.col), h = Object.prototype.hasOwnProperty.call(o, r.id); return { id: r.id, ref: r, exists: () => h, data: () => h ? JSON.parse(JSON.stringify(o[r.id])) : undefined }; }, set: (r, d) => (ops.push({ t: 's', r, d }), tx), update: (r, d) => (ops.push({ t: 'u', r, d }), tx), delete: r => (ops.push({ t: 'd', r }), tx) };
+      const res = await fn(tx), c = {}, td = new Set();
+      for (const op of ops) { const col = op.r.col; if (!c[col]) c[col] = demoRead(col); if (op.t === 's') c[col][op.r.id] = JSON.parse(JSON.stringify(op.d)); else if (op.t === 'u') c[col][op.r.id] = Object.assign({}, c[col][op.r.id], JSON.parse(JSON.stringify(op.d))); else delete c[col][op.r.id]; td.add(col); }
+      td.forEach(x => demoSave(x, c[x])); td.forEach(demoNotify); return res;
+    }
+  };
+}
+
+
+const runtimeMeta = { currencyCode: 'USD', currencySymbol: '$' };
+function configureRuntimeMeta(cfg = {}) { runtimeMeta.currencyCode = cfg.currencyCode || 'USD'; runtimeMeta.currencySymbol = cfg.currencySymbol || '$'; }
+function getCurrencyLabel() { return `${runtimeMeta.currencyCode} ${runtimeMeta.currencySymbol}`; }
+const state = { userId: null, userEmail: null, activePlan: 'home', selectedSellDate: getLocalDateStr(new Date()), inventory: [], sales: [], dues: [], adjustments: [], sellEdit: null, dueEdit: null, stockEdit: null, activePayDueId: null, activeAdjBatchId: null, trendChart: null, breakdownChart: null };
+function formatMoney(a) { return formatCurrency(a, runtimeMeta.currencySymbol); }
+function userDoc(c, id) { return storageUserDoc(state.userId, c, id); }
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer'); if (!c) return;
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type === 'error' ? 'toast-err' : type === 'warning' ? 'toast-warn' : 'toast-ok');
+  t.innerHTML = '<i class="fa-solid ' + (type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check') + '"></i><span>' + escapeHtml(msg) + '</span>';
+  c.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+function escapeHtml(s) { return s == null ? '' : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function getAggregatedProducts() {
+  const map = new Map();
+  for (const b of [...state.inventory].sort((a, b) => (a.purchaseDate || '').localeCompare(b.purchaseDate || '') || (a.createdAt || 0) - (b.createdAt || 0))) {
+    const k = (b.productName || '').trim().toLowerCase(); if (!k) continue;
+    if (!map.has(k)) map.set(k, { key: k, productName: b.productName.trim(), unitType: b.unitType || getUnitType(b.displayUnit || 'KG'), availableBase: 0, purchasedBase: 0, latestSellingPricePerBase: Number(b.sellingPricePerBaseUnit) || 0, batches: [] });
+    const it = map.get(k); it.availableBase += Number(b.remainingQtyBase) || 0; it.purchasedBase += Number(b.purchasedQtyBase) || 0; it.latestSellingPricePerBase = Number(b.sellingPricePerBaseUnit) || it.latestSellingPricePerBase; it.batches.push(b);
+  }
+  return Array.from(map.values());
+}
+function findProductByName(n) { return getAggregatedProducts().find(p => p.key === (n || '').trim().toLowerCase()) || null; }
+let unsubs = [], dbErrShown = false;
+function detachListeners() { unsubs.forEach(u => u && u()); unsubs = []; }
+function attachListeners(onChange) {
+  detachListeners(); dbErrShown = false;
+  const oe = (e) => { if (!dbErrShown) { dbErrShown = true; showToast(e?.code === 'permission-denied' ? 'Access denied by firestore.rules.' : ('DB error: ' + (e?.message || 'unknown')), 'error'); } };
+  unsubs = [
+    onSnapshot(userCol(state.userId, 'inventory_batches'), s => { state.inventory = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.purchaseDate || '').localeCompare(a.purchaseDate || '')); onChange(); }, oe),
+    onSnapshot(userCol(state.userId, 'sales'), s => { state.sales = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); onChange(); }, oe),
+    onSnapshot(userCol(state.userId, 'dues'), s => { state.dues = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); onChange(); }, oe),
+    onSnapshot(userCol(state.userId, 'stock_adjustments'), s => { state.adjustments = s.docs.map(d => ({ id: d.id, ...d.data() })); }, oe)
+  ];
+}
+window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
+
+
+
+function initDashboardSelectors() {
+  const now = new Date(), cy = now.getFullYear(), cm = String(now.getMonth() + 1).padStart(2, '0'), ys = document.getElementById('dashYearSelect'); ys.innerHTML = '';
+  for (let y = cy - 3; y <= cy + 2; y++) { const o = document.createElement('option'); o.value = String(y); o.textContent = String(y); if (y === cy) o.selected = true; ys.appendChild(o); }
+  document.getElementById('dashMonthSelect').value = cm;
+}
+function renderDashboard() {
+  const sm = document.getElementById('dashMonthSelect').value, sy = document.getElementById('dashYearSelect').value;
+  const k = computeDashboardKpis({ inventory: state.inventory, sales: state.sales, dues: state.dues, selMonth: sm, selYear: sy });
+  document.getElementById('kpi-investment').textContent = formatMoney(k.totalInvestment);
+  document.getElementById('kpi-total-sales').textContent = formatMoney(k.totalSales);
+  document.getElementById('kpi-profit').textContent = formatMoney(k.totalProfit);
+  document.getElementById('kpi-stock-value').textContent = formatMoney(k.currentStockValue);
+  document.getElementById('kpi-cash-sales').textContent = formatMoney(k.cashSales);
+  document.getElementById('kpi-credit-sales').textContent = formatMoney(k.creditSales);
+  document.getElementById('kpi-outstanding-due').textContent = formatMoney(k.totalOutstandingDue);
+  document.getElementById('kpi-due-collected').textContent = formatMoney(k.periodDueCollected);
+  document.getElementById('kpi-cash-in-hand').textContent = 'Cash in Hand: ' + formatMoney(k.cashInHand);
+  const al = getAggregatedProducts().filter(p => p.availableBase <= 0 || (p.purchasedBase > 0 && p.availableBase / p.purchasedBase <= 0.2));
+  document.getElementById('lowStockBanner').classList.toggle('hidden', !al.length);
+  if (al.length) document.getElementById('lowStockText').textContent = al.map(p => p.productName + ' (' + (p.availableBase <= 0 ? 'Out of Stock' : formatQty(p.availableBase) + ' left') + ')').join(' • ');
+  if (typeof Chart !== 'undefined') {
+    const tc = document.getElementById('salesProfitChart'), bc = document.getElementById('breakdownChart'), g = new Map();
+    for (const s of k.periodSales) { const key = sm === 'ALL' ? (s.date || '').slice(0, 7) : (s.date || ''); if (!key) continue; if (!g.has(key)) g.set(key, { s: 0, p: 0 }); g.get(key).s += Number(s.sellingPrice) || 0; g.get(key).p += Number(s.profit) || 0; }
+    const ks = Array.from(g.keys()).sort();
+    if (state.trendChart) state.trendChart.destroy();
+    state.trendChart = new Chart(tc.getContext('2d'), { type: 'bar', data: { labels: ks.length ? ks.map(x => sm === 'ALL' ? x : x.slice(8, 10) + '/' + x.slice(5, 7)) : [sy], datasets: [{ label: 'Revenue', data: ks.length ? ks.map(x => g.get(x).s) : [0], backgroundColor: '#10b981', borderRadius: 8, barPercentage: 0.6 }, { label: 'Profit', data: ks.length ? ks.map(x => g.get(x).p) : [0], backgroundColor: '#0284c7', borderRadius: 8, barPercentage: 0.6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', align: 'end' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#f1f5f9' } } } } });
+    if (state.breakdownChart) state.breakdownChart.destroy();
+    const hd = k.cashSales + k.periodDueCollected + k.totalOutstandingDue > 0;
+    state.breakdownChart = new Chart(bc.getContext('2d'), { type: 'doughnut', data: { labels: ['Cash Sales', 'Due Collected', 'Outstanding Due'], datasets: [{ data: hd ? [k.cashSales, k.periodDueCollected, k.totalOutstandingDue] : [1, 0, 0], backgroundColor: hd ? ['#10b981', '#6366f1', '#f43f5e'] : ['#e2e8f0', '#e2e8f0', '#e2e8f0'], borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom' } } } });
+  }
+}
+window.renderDashboard = renderDashboard;
+
+
+
+
+function renderSellHeader() {
+  const [y, m, d] = state.selectedSellDate.split('-').map(Number), dt = new Date(y, m - 1, d);
+  document.getElementById('sellMonthLabel').textContent = dt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById('sellDateHuman').textContent = dt.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  document.getElementById('sellDatePicker').value = state.selectedSellDate;
+}
+function renderSellTable() {
+  const tb = document.getElementById('sellTableBody'), ds = state.sales.filter(s => s.date === state.selectedSellDate);
+  let html = '';
+  ds.forEach((s, i) => {
+    if (state.sellEdit && state.sellEdit.mode === 'edit' && state.sellEdit.id === s.id) html += buildSellRow(i + 1, state.sellEdit.draft);
+    else {
+      const badge = s.saleType === 'CREDIT' ? '<span class="pill pill-warn">Credit • ' + escapeHtml(s.customerName || 'Due') + '</span>' : '<span class="pill pill-ok">Cash</span>';
+      html += '<tr class="row-hover" onclick="startEditSellRow(\'' + s.id + '\')"><td class="text-muted">' + (i + 1) + '</td><td class="fw-bold">' + escapeHtml(s.productName) + '</td><td class="num">' + formatQty(s.quantity) + '</td><td><span class="unit-chip">' + escapeHtml(s.unit) + '</span></td><td class="num fw-bold">' + formatMoney(s.sellingPrice) + '</td><td>' + badge + '</td><td class="act" onclick="event.stopPropagation()"><button type="button" onclick="startEditSellRow(\'' + s.id + '\')" class="icon-btn" title="Edit"><i class="fa-solid fa-pen"></i></button><button type="button" onclick="confirmDeleteSale(\'' + s.id + '\')" class="icon-btn icon-btn-del" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>';
+    }
+  });
+  if (state.sellEdit && state.sellEdit.mode === 'add') html += buildSellRow(ds.length + 1, state.sellEdit.draft);
+  tb.innerHTML = html || '<tr><td colspan="7" class="empty-cell">No sales recorded for ' + state.selectedSellDate + '. Click <strong>+ New Sale</strong> to add one.</td></tr>';
+  document.getElementById('sellSaveBar').classList.toggle('hidden', !state.sellEdit);
+  const dc = ds.filter(x => x.saleType !== 'CREDIT').reduce((a, b) => a + (Number(b.sellingPrice) || 0), 0), dr = ds.filter(x => x.saleType === 'CREDIT').reduce((a, b) => a + (Number(b.sellingPrice) || 0), 0);
+  document.getElementById('sellDayCashTotal').textContent = formatMoney(dc); document.getElementById('sellDayCreditTotal').textContent = formatMoney(dr); document.getElementById('sellDayGrandTotal').textContent = formatMoney(dc + dr);
+}
+function buildSellRow(n, d) {
+  const dl = getAggregatedProducts().map(p => '<option value="' + escapeHtml(p.productName) + '">').join('');
+  const cf = d.saleType === 'CREDIT' ? '<div class="sub-inputs"><input value="' + escapeHtml(d.customerName || '') + '" oninput="updateSellDraft(\'customerName\',this.value)" placeholder="Customer *" class="cell-input"/><input value="' + escapeHtml(d.mobile || '') + '" oninput="updateSellDraft(\'mobile\',this.value)" placeholder="Mobile" class="cell-input"/></div>' : '';
+  return '<tr class="editing-row"><td>' + n + '</td><td><input list="spl" value="' + escapeHtml(d.productName) + '" onchange="onSellProductChanged(this.value)" placeholder="Product..." class="cell-input"/><datalist id="spl">' + dl + '</datalist></td><td><input type="number" step="any" value="' + d.quantity + '" oninput="onSellQtyOrUnitChanged(this.value,null)" class="cell-input num"/></td><td><select onchange="onSellQtyOrUnitChanged(null,this.value)" class="cell-input"><option value="KG"' + (d.unit === 'KG' ? ' selected' : '') + '>KG</option><option value="GM"' + (d.unit === 'GM' ? ' selected' : '') + '>GM</option><option value="PC"' + (d.unit === 'PC' ? ' selected' : '') + '>PC</option></select></td><td><input type="number" step="any" id="sellDraftPriceInput" value="' + d.sellingPrice + '" oninput="updateSellDraft(\'sellingPrice\',this.value,false)" class="cell-input num"/></td><td><select onchange="updateSellDraft(\'saleType\',this.value,true)" class="cell-input"><option value="CASH"' + (d.saleType === 'CASH' ? ' selected' : '') + '>Cash</option><option value="CREDIT"' + (d.saleType === 'CREDIT' ? ' selected' : '') + '>Credit</option></select>' + cf + '</td><td><span class="pill pill-ok">Editing</span></td></tr>';
+}
+window.shiftSellDate = (dd) => { if (state.sellEdit) return showToast('Save or Cancel first.', 'warning'); const [y, m, d] = state.selectedSellDate.split('-').map(Number); state.selectedSellDate = getLocalDateStr(new Date(y, m - 1, d + dd)); renderSellHeader(); renderSellTable(); };
+window.shiftSellMonth = (dm) => { if (state.sellEdit) return showToast('Save or Cancel first.', 'warning'); const [y, m, d] = state.selectedSellDate.split('-').map(Number); state.selectedSellDate = getLocalDateStr(new Date(y, m - 1 + dm, Math.min(d, 28))); renderSellHeader(); renderSellTable(); };
+window.onSellDatePicked = (v) => { if (v && !state.sellEdit) { state.selectedSellDate = v; renderSellHeader(); renderSellTable(); } };
+window.jumpSellToToday = () => { if (!state.sellEdit) { state.selectedSellDate = getLocalDateStr(new Date()); renderSellHeader(); renderSellTable(); } };
+window.startAddSellRow = () => { if (!state.inventory.length) { showToast('Add stock first!', 'warning'); return window.switchPlan('stock'); } state.sellEdit = { mode: 'add', id: null, draft: { productName: '', quantity: '', unit: 'KG', sellingPrice: '', saleType: 'CASH', customerName: '', mobile: '' } }; renderSellTable(); };
+window.startEditSellRow = (id) => { const s = state.sales.find(x => x.id === id); if (!s) return; state.sellEdit = { mode: 'edit', id: s.id, draft: { productName: s.productName, quantity: s.quantity, unit: s.unit, sellingPrice: s.sellingPrice, saleType: s.saleType || 'CASH', customerName: s.customerName || '', mobile: '' } }; renderSellTable(); };
+window.updateSellDraft = (f, v, r) => { if (state.sellEdit) { state.sellEdit.draft[f] = v; if (r) renderSellTable(); } };
+window.onSellProductChanged = (n) => { if (!state.sellEdit) return; state.sellEdit.draft.productName = n; const p = findProductByName(n); if (p) { state.sellEdit.draft.unit = p.unitType === 'WEIGHT' ? 'KG' : 'PC'; const q = Number(state.sellEdit.draft.quantity) || 0; if (q > 0) state.sellEdit.draft.sellingPrice = Math.round(toBaseQty(q, state.sellEdit.draft.unit) * p.latestSellingPricePerBase * 100) / 100; } renderSellTable(); };
+window.onSellQtyOrUnitChanged = (nq, nu) => { if (!state.sellEdit) return; if (nq !== null) state.sellEdit.draft.quantity = nq; if (nu !== null) state.sellEdit.draft.unit = nu; const p = findProductByName(state.sellEdit.draft.productName), q = Number(state.sellEdit.draft.quantity) || 0; if (p && q > 0) { const c = Math.round(toBaseQty(q, state.sellEdit.draft.unit) * p.latestSellingPricePerBase * 100) / 100; state.sellEdit.draft.sellingPrice = c; const i = document.getElementById('sellDraftPriceInput'); if (i) i.value = c; } if (nu !== null) renderSellTable(); };
+window.cancelSellEdit = () => { state.sellEdit = null; renderSellTable(); };
+window.saveSellRow = async () => {
+  if (!state.sellEdit || !state.userId) return;
+  const { mode, id, draft } = state.sellEdit, pn = (draft.productName || '').trim(), q = Number(draft.quantity), u = draft.unit, sp = Number(draft.sellingPrice), st = draft.saleType || 'CASH', cn = (draft.customerName || '').trim();
+  const agg = findProductByName(pn); if (!agg || !q || q <= 0 || isNaN(sp)) return showToast('Enter valid stocked product, qty, and price.', 'error');
+  if (st === 'CREDIT' && !cn) return showToast('Enter Customer Name.', 'error');
+  const qb = toBaseQty(q, u);
+  try {
+    await runTransaction(async (tx) => {
+      const snaps = await Promise.all(agg.batches.map(b => tx.get(userDoc('inventory_batches', b.id))));
+      let live = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ref: s.ref, ...s.data() })), exS = null, exD = null;
+      if (mode === 'edit' && id) { const ss = await tx.get(userDoc('sales', id)); if (ss.exists()) { exS = ss.data(); if (exS.dueRecordId) { const ds = await tx.get(userDoc('dues', exS.dueRecordId)); if (ds.exists()) exD = ds.data(); } live = restoreFifoBatches(live, exS.qtyBase); } }
+      const alloc = allocateFifoDeduction(live, qb), prof = computeSaleProfit(sp, alloc.cogs);
+      for (const b of alloc.batches) tx.update(b.ref, { remainingQtyBase: b.remainingQtyBase, soldQtyBase: b.soldQtyBase });
+      const sid = mode === 'edit' && id ? id : crypto.randomUUID(); let did = exS?.dueRecordId || null;
+      if (st === 'CREDIT') { if (!did) did = crypto.randomUUID(); const bal = computeDueBalances(sp, exD ? exD.amountPaid : 0); tx.set(userDoc('dues', did), { saleId: sid, date: state.selectedSellDate, customerName: cn, mobile: draft.mobile || '', productName: agg.productName, quantity: q, unit: u, qtyBase: qb, totalPrice: sp, amountPaid: bal.amountPaid, remainingDue: bal.remainingDue, isPaid: bal.isPaid, paymentHistory: exD?.paymentHistory || [], createdAt: exD?.createdAt || Date.now() }); }
+      else if (did) { tx.delete(userDoc('dues', did)); did = null; }
+      tx.set(userDoc('sales', sid), { date: state.selectedSellDate, productName: agg.productName, quantity: q, unit: u, qtyBase: qb, sellingPrice: sp, cogs: alloc.cogs, profit: prof, saleType: st, dueRecordId: did, customerName: st === 'CREDIT' ? cn : null, createdAt: exS?.createdAt || Date.now() });
+    });
+    state.sellEdit = null; showToast('Sale saved!');
+  } catch (e) { showToast(e.message, 'error'); }
+};
+window.confirmDeleteSale = async (id) => {
+  try {
+    await runTransaction(async (tx) => {
+      const ss = await tx.get(userDoc('sales', id)); if (!ss.exists()) return;
+      const sd = ss.data(), agg = findProductByName(sd.productName);
+      if (agg) { const snaps = await Promise.all(agg.batches.map(b => tx.get(userDoc('inventory_batches', b.id)))); for (const b of restoreFifoBatches(snaps.filter(s => s.exists()).map(s => ({ ref: s.ref, ...s.data() })), sd.qtyBase)) tx.update(b.ref, { remainingQtyBase: b.remainingQtyBase, soldQtyBase: b.soldQtyBase }); }
+      if (sd.dueRecordId) tx.delete(userDoc('dues', sd.dueRecordId)); tx.delete(userDoc('sales', id));
+    });
+    showToast('Sale deleted!');
+  } catch (e) { showToast(e.message, 'error'); }
+};
+
+
+
+
+function renderDueTable() {
+  const tb = document.getElementById('dueTableBody'), q = (document.getElementById('dueSearchInput')?.value || '').trim().toLowerCase();
+  const fl = state.dues.filter(d => !q || (d.customerName || '').toLowerCase().includes(q) || (d.mobile || '').toLowerCase().includes(q));
+  let html = state.dueEdit && state.dueEdit.mode === 'add' ? buildDueRow(state.dueEdit.draft) : '';
+  fl.forEach(d => {
+    if (state.dueEdit && state.dueEdit.mode === 'edit' && state.dueEdit.id === d.id) html += buildDueRow(state.dueEdit.draft);
+    else {
+      const p = Boolean(d.isPaid);
+      const stBadge = p ? '<span class="pill pill-ok"><i class="fa-solid fa-check"></i> Paid</span>' : '<span class="pill pill-due">Unpaid</span>';
+      html += '<tr class="row-hover' + (p ? ' row-settled' : '') + '" onclick="startEditDueRow(\'' + d.id + '\')"><td><div class="fw-bold">' + escapeHtml(d.customerName) + '</div><div class="sub-txt">' + escapeHtml(d.date || '') + '</div></td><td class="mono">' + escapeHtml(d.mobile || '—') + '</td><td>' + escapeHtml(d.productName) + '</td><td class="num">' + formatQty(d.quantity) + ' ' + escapeHtml(d.unit) + '</td><td class="num fw-bold">' + formatMoney(d.totalPrice) + '</td><td class="num" onclick="event.stopPropagation()">' + formatMoney(d.amountPaid) + ' <button type="button" onclick="openPaymentModal(\'' + d.id + '\')" class="mini-pay">+ Pay</button></td><td class="num fw-bold ' + (p ? 'txt-ok' : 'txt-due') + '">' + formatMoney(d.remainingDue) + '</td><td onclick="event.stopPropagation()"><label class="status-chk"><input type="checkbox"' + (p ? ' checked' : '') + ' onchange="toggleDuePaidCheckbox(\'' + d.id + '\',this.checked)"/>' + stBadge + '</label></td><td class="act" onclick="event.stopPropagation()"><button type="button" onclick="confirmDeleteDue(\'' + d.id + '\')" class="icon-btn icon-btn-del" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>';
+    }
+  });
+  tb.innerHTML = html || '<tr><td colspan="9" class="empty-cell">No credit records found.</td></tr>';
+  document.getElementById('dueSaveBar').classList.toggle('hidden', !state.dueEdit);
+  document.getElementById('dueFooterCreditTotal').textContent = formatMoney(state.dues.reduce((s, d) => s + (Number(d.totalPrice) || 0), 0));
+  document.getElementById('dueFooterPaidTotal').textContent = formatMoney(state.dues.reduce((s, d) => s + (Number(d.amountPaid) || 0), 0));
+  document.getElementById('dueFooterRemainingTotal').textContent = formatMoney(state.dues.reduce((s, d) => s + Math.max(0, Number(d.remainingDue) || 0), 0));
+}
+function buildDueRow(d) {
+  const dl = getAggregatedProducts().map(p => '<option value="' + escapeHtml(p.productName) + '">').join('');
+  return '<tr class="editing-row"><td><input value="' + escapeHtml(d.customerName) + '" oninput="updateDueDraft(\'customerName\',this.value)" placeholder="Customer *" class="cell-input"/></td><td><input value="' + escapeHtml(d.mobile) + '" oninput="updateDueDraft(\'mobile\',this.value)" placeholder="Mobile" class="cell-input"/></td><td><input list="dpl" value="' + escapeHtml(d.productName) + '" onchange="onDueProductChanged(this.value)" placeholder="Product" class="cell-input"/><datalist id="dpl">' + dl + '</datalist></td><td><div class="flex gap-1"><input type="number" step="any" value="' + d.quantity + '" oninput="onDueQtyOrUnitChanged(this.value,null)" class="cell-input num"/><select onchange="onDueQtyOrUnitChanged(null,this.value)" class="cell-input"><option value="KG"' + (d.unit === 'KG' ? ' selected' : '') + '>KG</option><option value="GM"' + (d.unit === 'GM' ? ' selected' : '') + '>GM</option><option value="PC"' + (d.unit === 'PC' ? ' selected' : '') + '>PC</option></select></div></td><td><input type="number" step="any" id="dueDraftTotalInput" value="' + d.totalPrice + '" oninput="onDuePriceOrPaidChanged(this.value,null)" class="cell-input num"/></td><td><input type="number" step="any" value="' + d.amountPaid + '" oninput="onDuePriceOrPaidChanged(null,this.value)" class="cell-input num"/></td><td class="num fw-bold" id="dueDraftRemDisplay">' + formatMoney(Math.max(0, (Number(d.totalPrice) || 0) - (Number(d.amountPaid) || 0))) + '</td><td><span class="pill pill-warn">Pending</span></td><td><span class="pill pill-ok">Editing</span></td></tr>';
+}
+window.renderDueTable = renderDueTable;
+window.startAddDueRow = () => { if (!state.inventory.length) { showToast('Add stock first!', 'warning'); return window.switchPlan('stock'); } state.dueEdit = { mode: 'add', id: null, draft: { date: getLocalDateStr(new Date()), customerName: '', mobile: '', productName: '', quantity: '', unit: 'KG', totalPrice: '', amountPaid: '0' } }; renderDueTable(); };
+window.startEditDueRow = (id) => { const d = state.dues.find(x => x.id === id); if (!d) return; state.dueEdit = { mode: 'edit', id: d.id, draft: { date: d.date, customerName: d.customerName, mobile: d.mobile || '', productName: d.productName, quantity: d.quantity, unit: d.unit || 'KG', totalPrice: d.totalPrice, amountPaid: d.amountPaid || 0 } }; renderDueTable(); };
+window.updateDueDraft = (f, v) => { if (state.dueEdit) state.dueEdit.draft[f] = v; };
+window.onDueProductChanged = (n) => { if (!state.dueEdit) return; state.dueEdit.draft.productName = n; const p = findProductByName(n); if (p) { state.dueEdit.draft.unit = p.unitType === 'WEIGHT' ? 'KG' : 'PC'; const q = Number(state.dueEdit.draft.quantity) || 0; if (q > 0) state.dueEdit.draft.totalPrice = Math.round(toBaseQty(q, state.dueEdit.draft.unit) * p.latestSellingPricePerBase * 100) / 100; } renderDueTable(); };
+window.onDueQtyOrUnitChanged = (nq, nu) => { if (!state.dueEdit) return; if (nq !== null) state.dueEdit.draft.quantity = nq; if (nu !== null) state.dueEdit.draft.unit = nu; const p = findProductByName(state.dueEdit.draft.productName), q = Number(state.dueEdit.draft.quantity) || 0; if (p && q > 0) { const c = Math.round(toBaseQty(q, state.dueEdit.draft.unit) * p.latestSellingPricePerBase * 100) / 100; state.dueEdit.draft.totalPrice = c; const i = document.getElementById('dueDraftTotalInput'); if (i) i.value = c; } if (nu !== null) renderDueTable(); };
+window.onDuePriceOrPaidChanged = (nt, np) => { if (!state.dueEdit) return; if (nt !== null) state.dueEdit.draft.totalPrice = nt; if (np !== null) state.dueEdit.draft.amountPaid = np; const d = document.getElementById('dueDraftRemDisplay'); if (d) d.textContent = formatMoney(Math.max(0, (Number(state.dueEdit.draft.totalPrice) || 0) - (Number(state.dueEdit.draft.amountPaid) || 0))); };
+window.cancelDueEdit = () => { state.dueEdit = null; renderDueTable(); };
+window.saveDueRow = async () => {
+  if (!state.dueEdit || !state.userId) return;
+  const { mode, id, draft } = state.dueEdit, cn = (draft.customerName || '').trim(), pn = (draft.productName || '').trim(), q = Number(draft.quantity), u = draft.unit, tp = Number(draft.totalPrice), ap = Number(draft.amountPaid) || 0, dt = draft.date || getLocalDateStr(new Date());
+  const agg = findProductByName(pn); if (!cn || !agg || !q || tp <= 0) return showToast('Fill required fields.', 'error');
+  const qb = toBaseQty(q, u);
+  try {
+    await runTransaction(async (tx) => {
+      const snaps = await Promise.all(agg.batches.map(b => tx.get(userDoc('inventory_batches', b.id))));
+      let live = snaps.filter(s => s.exists()).map(s => ({ ref: s.ref, ...s.data() })), exD = null, exS = null;
+      if (mode === 'edit' && id) { const ds = await tx.get(userDoc('dues', id)); if (ds.exists()) { exD = ds.data(); if (exD.saleId) { const ss = await tx.get(userDoc('sales', exD.saleId)); if (ss.exists()) exS = ss.data(); } live = restoreFifoBatches(live, exD.qtyBase); } }
+      const alloc = allocateFifoDeduction(live, qb), prof = computeSaleProfit(tp, alloc.cogs);
+      for (const b of alloc.batches) tx.update(b.ref, { remainingQtyBase: b.remainingQtyBase, soldQtyBase: b.soldQtyBase });
+      const did = mode === 'edit' && id ? id : crypto.randomUUID(), sid = exD?.saleId || crypto.randomUUID(), bal = computeDueBalances(tp, ap), hist = exD?.paymentHistory ? [...exD.paymentHistory] : [];
+      if (mode === 'add' && ap > 0) hist.push({ date: dt, amount: ap, note: 'Initial payment' });
+      tx.set(userDoc('dues', did), { saleId: sid, date: dt, customerName: cn, mobile: draft.mobile || '', productName: agg.productName, quantity: q, unit: u, qtyBase: qb, totalPrice: tp, amountPaid: bal.amountPaid, remainingDue: bal.remainingDue, isPaid: bal.isPaid, paymentHistory: hist, createdAt: exD?.createdAt || Date.now() });
+      tx.set(userDoc('sales', sid), { date: dt, productName: agg.productName, quantity: q, unit: u, qtyBase: qb, sellingPrice: tp, cogs: alloc.cogs, profit: prof, saleType: 'CREDIT', dueRecordId: did, customerName: cn, createdAt: exS?.createdAt || Date.now() });
+    });
+    state.dueEdit = null; showToast('Credit record saved!');
+  } catch (e) { showToast(e.message, 'error'); }
+};
+window.toggleDuePaidCheckbox = async (id, c) => {
+  await runTransaction(async (tx) => {
+    const ref = userDoc('dues', id), s = await tx.get(ref); if (!s.exists()) return;
+    const d = s.data(), tp = Number(d.totalPrice) || 0, cp = Number(d.amountPaid) || 0, h = Array.isArray(d.paymentHistory) ? [...d.paymentHistory] : [];
+    if (c) { const bal = Math.max(0, Math.round((tp - cp) * 100) / 100); if (bal > 0) h.push({ date: getLocalDateStr(new Date()), amount: bal, note: 'Marked Full Paid' }); tx.update(ref, { isPaid: true, amountPaid: tp, remainingDue: 0, paymentHistory: h }); }
+    else tx.update(ref, { isPaid: false });
+  });
+  showToast('Due updated!');
+};
+window.openPaymentModal = (id) => {
+  const d = state.dues.find(x => x.id === id); if (!d) return; state.activePayDueId = id;
+  document.getElementById('payModalCustomerSub').textContent = d.customerName + ' • ' + d.productName;
+  document.getElementById('payModalTotal').textContent = formatMoney(d.totalPrice); document.getElementById('payModalPaid').textContent = formatMoney(d.amountPaid); document.getElementById('payModalRemaining').textContent = formatMoney(d.remainingDue);
+  document.getElementById('payModalAmountInput').value = d.remainingDue > 0 ? d.remainingDue : ''; document.getElementById('payModalDateInput').value = getLocalDateStr(new Date());
+  const h = Array.isArray(d.paymentHistory) ? d.paymentHistory : [];
+  document.getElementById('payModalHistoryList').innerHTML = h.length ? h.map(x => '<div class="hist-row"><span>' + escapeHtml(x.date) + ' · ' + escapeHtml(x.note || '') + '</span><strong>' + formatMoney(x.amount) + '</strong></div>').join('') : '<div class="hist-empty">No payments recorded yet.</div>';
+  document.getElementById('paymentModal').classList.remove('hidden');
+};
+window.submitDuePayment = async () => {
+  const id = state.activePayDueId, amt = Number(document.getElementById('payModalAmountInput').value), dt = document.getElementById('payModalDateInput').value || getLocalDateStr(new Date()), nt = document.getElementById('payModalNoteInput').value.trim() || 'Payment';
+  if (!id || !amt || amt <= 0) return showToast('Enter valid amount.', 'error');
+  try {
+    await runTransaction(async (tx) => {
+      const ref = userDoc('dues', id), s = await tx.get(ref); if (!s.exists()) return;
+      const d = s.data(); if (amt > (Number(d.remainingDue) || 0) + 0.01) throw new Error('Exceeds remaining due.');
+      const bal = computeDueBalances(d.totalPrice, (Number(d.amountPaid) || 0) + amt), h = Array.isArray(d.paymentHistory) ? [...d.paymentHistory] : [];
+      h.push({ date: dt, amount: amt, note: nt }); tx.update(ref, { amountPaid: bal.amountPaid, remainingDue: bal.remainingDue, isPaid: bal.isPaid, paymentHistory: h });
+    });
+    window.closeModal('paymentModal'); showToast('Payment recorded!');
+  } catch (e) { showToast(e.message, 'error'); }
+};
+window.confirmDeleteDue = async (id) => {
+  const d = state.dues.find(x => x.id === id); if (!d) return;
+  await runTransaction(async (tx) => {
+    if (d.saleId) { const ss = await tx.get(userDoc('sales', d.saleId)); if (ss.exists()) { const sd = ss.data(), agg = findProductByName(sd.productName); if (agg) { const snaps = await Promise.all(agg.batches.map(b => tx.get(userDoc('inventory_batches', b.id)))); for (const b of restoreFifoBatches(snaps.filter(s => s.exists()).map(s => ({ ref: s.ref, ...s.data() })), sd.qtyBase)) tx.update(b.ref, { remainingQtyBase: b.remainingQtyBase, soldQtyBase: b.soldQtyBase }); } tx.delete(userDoc('sales', d.saleId)); } }
+    tx.delete(userDoc('dues', id));
+  });
+  showToast('Due deleted!');
+};
+
+
+
+
+function renderStockTable() {
+  const tb = document.getElementById('stockTableBody'), q = (document.getElementById('stockSearchInput')?.value || '').trim().toLowerCase();
+  const fl = state.inventory.filter(b => !q || (b.productName || '').toLowerCase().includes(q));
+  let html = state.stockEdit && state.stockEdit.mode === 'add' ? buildStockRow(state.stockEdit.draft) : '';
+  fl.forEach(b => {
+    if (state.stockEdit && state.stockEdit.mode === 'edit' && state.stockEdit.id === b.id) html += buildStockRow(state.stockEdit.draft);
+    else {
+      const bu = b.unitType === 'WEIGHT' ? 'KG' : 'PC', du = b.displayUnit || bu;
+      const margin = (Number(b.sellingPricePerBaseUnit) || 0) - (Number(b.purchasePricePerBaseUnit) || 0);
+      const low = (Number(b.remainingQtyBase) || 0) <= 0 || ((Number(b.purchasedQtyBase) || 0) > 0 && (Number(b.remainingQtyBase) || 0) / (Number(b.purchasedQtyBase) || 1) <= 0.2);
+      const availHtml = '<span class="fw-bold">' + formatQty(b.remainingQtyBase) + ' ' + bu + '</span>' + (low ? ' <span class="pill pill-warn">Low</span>' : '');
+      html += '<tr class="row-hover" onclick="startEditStockRow(\'' + b.id + '\')"><td class="fw-bold">' + escapeHtml(b.productName) + '</td><td class="num">' + formatQty(fromBaseQty(b.purchasedQtyBase, du)) + ' ' + escapeHtml(du) + '</td><td class="num fw-bold">' + formatMoney(b.totalPurchaseCost) + '</td><td class="num text-muted">' + formatMoney(b.purchasePricePerBaseUnit) + '/' + bu + '</td><td class="num"><div class="fw-bold txt-ok">' + formatMoney(b.sellingPricePerBaseUnit) + '/' + bu + '</div><div class="sub-txt">+' + formatMoney(margin) + '/' + bu + '</div></td><td class="num">' + availHtml + '</td><td class="num text-muted">' + formatQty(b.soldQtyBase) + ' ' + bu + '</td><td class="text-muted">' + escapeHtml(b.purchaseDate || '') + '</td><td class="act" onclick="event.stopPropagation()"><button type="button" onclick="openAdjustModal(\'' + b.id + '\')" class="icon-btn" title="Adjust"><i class="fa-solid fa-sliders"></i></button><button type="button" onclick="confirmDeleteStock(\'' + b.id + '\')" class="icon-btn icon-btn-del" title="Delete"><i class="fa-solid fa-trash"></i></button></td></tr>';
+    }
+  });
+  tb.innerHTML = html || '<tr><td colspan="9" class="empty-cell">No stock batches yet. Click <strong>+ Add Batch</strong> to start.</td></tr>';
+  document.getElementById('stockSaveBar').classList.toggle('hidden', !state.stockEdit);
+  document.getElementById('stockFooterInvestment').textContent = formatMoney(state.inventory.reduce((s, b) => s + (Number(b.totalPurchaseCost) || 0), 0));
+  document.getElementById('stockFooterLiveValue').textContent = formatMoney(state.inventory.reduce((s, b) => s + Math.max(0, Number(b.remainingQtyBase) || 0) * (Number(b.purchasePricePerBaseUnit) || 0), 0));
+}
+function buildStockRow(d) {
+  const bu = d.unit === 'PC' ? 'PC' : 'KG', qb = toBaseQty(d.purchasedQty, d.unit), buy = qb > 0 ? (Number(d.totalPurchaseCost) || 0) / qb : 0;
+  return '<tr class="editing-row"><td><input value="' + escapeHtml(d.productName) + '" oninput="updateStockDraft(\'productName\',this.value)" placeholder="Product *" class="cell-input"/></td><td><div class="flex gap-1"><input type="number" step="any" value="' + d.purchasedQty + '" oninput="onStockCostOrQtyChanged(this.value,null,null)" class="cell-input num"/><select onchange="onStockCostOrQtyChanged(null,this.value,null)" class="cell-input"><option value="KG"' + (d.unit === 'KG' ? ' selected' : '') + '>KG</option><option value="GM"' + (d.unit === 'GM' ? ' selected' : '') + '>GM</option><option value="PC"' + (d.unit === 'PC' ? ' selected' : '') + '>PC</option></select></div></td><td><input type="number" step="any" value="' + d.totalPurchaseCost + '" oninput="onStockCostOrQtyChanged(null,null,this.value)" class="cell-input num"/></td><td class="num fw-bold" id="stockDraftBuyUnitDisplay">' + formatMoney(buy) + '/' + bu + '</td><td><input type="number" step="any" value="' + d.sellingPricePerUnit + '" oninput="onStockSellPriceChanged(this.value)" class="cell-input num"/></td><td class="num text-muted">Auto</td><td class="num text-muted">Auto</td><td><input type="date" value="' + escapeHtml(d.purchaseDate) + '" onchange="updateStockDraft(\'purchaseDate\',this.value)" class="cell-input"/></td><td><span class="pill pill-ok">Editing</span></td></tr>';
+}
+window.renderStockTable = renderStockTable;
+window.startAddStockRow = () => { state.stockEdit = { mode: 'add', id: null, draft: { productName: '', purchasedQty: '', unit: 'KG', totalPurchaseCost: '', sellingPricePerUnit: '', purchaseDate: getLocalDateStr(new Date()) } }; renderStockTable(); };
+window.startEditStockRow = (id) => { const b = state.inventory.find(x => x.id === id); if (!b) return; const u = b.displayUnit || (b.unitType === 'PC' ? 'PC' : 'KG'); state.stockEdit = { mode: 'edit', id: b.id, draft: { productName: b.productName, purchasedQty: fromBaseQty(b.purchasedQtyBase, u), unit: u, totalPurchaseCost: b.totalPurchaseCost, sellingPricePerUnit: b.sellingPricePerBaseUnit, purchaseDate: b.purchaseDate } }; renderStockTable(); };
+window.updateStockDraft = (f, v) => { if (state.stockEdit) state.stockEdit.draft[f] = v; };
+window.onStockCostOrQtyChanged = (q, u, c) => { if (!state.stockEdit) return; if (q !== null) state.stockEdit.draft.purchasedQty = q; if (u !== null) state.stockEdit.draft.unit = u; if (c !== null) state.stockEdit.draft.totalPurchaseCost = c; const d = state.stockEdit.draft, bu = d.unit === 'PC' ? 'PC' : 'KG', qb = toBaseQty(d.purchasedQty, d.unit), bd = document.getElementById('stockDraftBuyUnitDisplay'); if (bd) bd.textContent = formatMoney(qb > 0 ? (Number(d.totalPurchaseCost) || 0) / qb : 0) + '/' + bu; };
+window.onStockSellPriceChanged = (v) => { if (state.stockEdit) state.stockEdit.draft.sellingPricePerUnit = v; };
+window.cancelStockEdit = () => { state.stockEdit = null; renderStockTable(); };
+window.saveStockRow = async () => {
+  if (!state.stockEdit || !state.userId) return;
+  const { mode, id, draft } = state.stockEdit, pn = (draft.productName || '').trim(), pq = Number(draft.purchasedQty), u = draft.unit || 'KG', tc = Number(draft.totalPurchaseCost), sp = Number(draft.sellingPricePerUnit), pd = draft.purchaseDate || getLocalDateStr(new Date());
+  if (!pn || !pq || pq <= 0 || isNaN(tc) || isNaN(sp)) return showToast('Fill valid stock fields.', 'error');
+  const ut = getUnitType(u), qb = toBaseQty(pq, u), bp = Math.round((tc / qb) * 10000) / 10000;
+  if (mode === 'add') await setDoc(userDoc('inventory_batches', crypto.randomUUID()), { productName: pn, unitType: ut, displayUnit: u, purchasedQtyBase: qb, totalPurchaseCost: tc, purchasePricePerBaseUnit: bp, sellingPricePerBaseUnit: sp, remainingQtyBase: qb, soldQtyBase: 0, purchaseDate: pd, createdAt: Date.now() });
+  else await runTransaction(async (tx) => { const ref = userDoc('inventory_batches', id), s = await tx.get(ref); if (!s.exists()) return; const sold = Number(s.data().soldQtyBase) || 0; tx.update(ref, { productName: pn, unitType: ut, displayUnit: u, purchasedQtyBase: qb, totalPurchaseCost: tc, purchasePricePerBaseUnit: bp, sellingPricePerBaseUnit: sp, remainingQtyBase: Math.max(0, qb - sold), purchaseDate: pd }); });
+  state.stockEdit = null; showToast('Stock saved!');
+};
+window.openAdjustModal = (id) => { const b = state.inventory.find(x => x.id === id); if (!b) return; state.activeAdjBatchId = id; document.getElementById('adjModalProductSub').textContent = b.productName; document.getElementById('adjUnitSelect').innerHTML = b.unitType === 'WEIGHT' ? '<option value="KG">KG</option><option value="GM">GM</option>' : '<option value="PC">PC</option>'; document.getElementById('adjustModal').classList.remove('hidden'); };
+window.submitStockAdjustment = async () => {
+  const id = state.activeAdjBatchId, t = document.getElementById('adjTypeSelect').value, q = Number(document.getElementById('adjQtyInput').value), u = document.getElementById('adjUnitSelect').value, r = document.getElementById('adjReasonInput').value.trim();
+  if (!id || !q || q <= 0 || !r) return showToast('Enter qty and reason.', 'error');
+  const dbAmt = (t === 'ADD' ? 1 : -1) * toBaseQty(q, u);
+  await runTransaction(async (tx) => { const ref = userDoc('inventory_batches', id), s = await tx.get(ref); if (!s.exists()) return; const b = s.data(), nr = (Number(b.remainingQtyBase) || 0) + dbAmt; if (nr < 0) throw new Error('Stock < 0'); tx.update(ref, { remainingQtyBase: nr }); tx.set(userDoc('stock_adjustments', crypto.randomUUID()), { batchId: id, productName: b.productName, deltaBase: dbAmt, reason: r, date: getLocalDateStr(new Date()), createdAt: Date.now() }); });
+  window.closeModal('adjustModal'); showToast('Stock adjusted!');
+};
+window.confirmDeleteStock = async (id) => { await deleteDoc(userDoc('inventory_batches', id)); showToast('Deleted!'); };
+
+setStorageAdapter(createLocalAdapter());
+const PLAN_META = {
+  home: { title: 'Financial Overview', sub: 'Real-time FIFO profit, sales & stock analytics' },
+  sell: { title: 'Daily Sales Ledger', sub: 'Record cash & credit sales with automatic FIFO deduction' },
+  due: { title: 'Customer Due Tracker', sub: 'Manage unpaid receivables & partial payment history' },
+  stock: { title: 'Inventory & FIFO Stock', sub: 'Track purchase batches, margins & low-stock alerts' }
+};
+const refreshDemo = () => { renderDashboard(); renderSellHeader(); renderSellTable(); renderDueTable(); renderStockTable(); };
+window.enterDemoApp = () => { document.getElementById('landingView').classList.add('hidden'); document.getElementById('appShell').classList.remove('hidden'); refreshDemo(); window.scrollTo(0, 0); };
+window.exitDemoApp = () => { document.getElementById('appShell').classList.add('hidden'); document.getElementById('landingView').classList.remove('hidden'); window.scrollTo(0, 0); };
+window.openAuthModal = () => document.getElementById('authModal')?.classList.remove('hidden');
+window.switchPlan = (pk) => { state.activePlan = pk; ['home', 'sell', 'due', 'stock'].forEach(p => { document.getElementById('plan-' + p).classList.toggle('hidden', p !== pk); document.getElementById('nav-' + p).className = p === pk ? 'nav-item active' : 'nav-item'; }); const m = PLAN_META[pk] || PLAN_META.home; document.getElementById('pageTitle').textContent = m.title; document.getElementById('pageSubtitle').textContent = m.sub; refreshDemo(); };
+window.addEventListener('DOMContentLoaded', () => { initDashboardSelectors(); renderSellHeader(); seedDemoIfEmpty(); state.userId = DEMO_USER.uid; document.getElementById('accountName').textContent = DEMO_USER.displayName; document.getElementById('accountEmail').textContent = DEMO_USER.email; attachListeners(refreshDemo); });
+  </script>
+</body>
+</html>
